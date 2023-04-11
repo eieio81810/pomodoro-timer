@@ -1,12 +1,13 @@
-// 以前のコードを削除し、p5.jsを使用したコードに置き換えます
-
 let workDuration = 25 * 60;
 let breakDuration = 5 * 60;
 let cycles = 4;
 
 let timerElement = document.getElementById("timer");
 let startButton = document.getElementById("start");
+let stopButton = document.getElementById("stop");
 let resetButton = document.getElementById("reset");
+let statusElement = document.getElementById("status");
+let cycleCountElement = document.getElementById("cycleCount");
 
 let timeLeft = workDuration;
 let cycleCount = 0;
@@ -14,49 +15,71 @@ let isWorking = true;
 let timer;
 
 function updateTimerDisplay() {
-    let minutes = Math.floor(timeLeft / 60);
-    let seconds = timeLeft % 60;
-    timerElement.textContent = `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
+  let minutes = Math.floor(timeLeft / 60);
+  let seconds = timeLeft % 60;
+  timerElement.textContent = `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
+}
+
+function updateStatusDisplay() {
+  statusElement.textContent = isWorking ? "作業中" : "休憩中";
+}
+
+function updateCycleCountDisplay() {
+  cycleCountElement.textContent = `サイクル数: ${cycleCount}/${cycles}`;
 }
 
 function pomodoroTimer() {
-    if (timeLeft === 0) {
-        if (isWorking) {
-            cycleCount++;
-            if (cycleCount === cycles) {
-                clearInterval(timer);
-                timerElement.textContent = "全てのサイクルが終了しました。お疲れ様でした！";
-                resetButton.disabled = false;
-                return;
-            }
-            timeLeft = breakDuration;
+  if (timeLeft === 0) {
+    if (isWorking) {
+      cycleCount++;
+      if (cycleCount === cycles) {
+        clearInterval(timer);
+        timerElement.textContent = "全てのサイクルが終了しました。お疲れ様でした！";
+        resetButton.disabled = false;
+        return;
+        }
+        timeLeft = breakDuration;
         } else {
-            timeLeft = workDuration;
+        timeLeft = workDuration;
         }
         isWorking = !isWorking;
-    }
-
-    timeLeft--;
-    updateTimerDisplay();
-}
-
-startButton.addEventListener("click", function () {
-    timer = setInterval(pomodoroTimer, 1000);
-    startButton.disabled = true;
-    resetButton.disabled = false;
-});
-
-resetButton.addEventListener("click", function () {
-    clearInterval(timer);
-    timeLeft = workDuration;
-    cycleCount = 0;
-    isWorking = true;
-    updateTimerDisplay();
-    startButton.disabled = false;
-    resetButton.disabled = true;
-});
-
-updateTimerDisplay();
+        updateStatusDisplay();
+        }
+        
+        timeLeft--;
+        updateTimerDisplay();
+        updateCycleCountDisplay();
+        }
+        
+        startButton.addEventListener("click", function () {
+        timer = setInterval(pomodoroTimer, 1000);
+        startButton.disabled = true;
+        stopButton.disabled = false;
+        resetButton.disabled = false;
+        });
+        
+        stopButton.addEventListener("click", function () {
+        clearInterval(timer);
+        startButton.disabled = false;
+        stopButton.disabled = true;
+        });
+        
+        resetButton.addEventListener("click", function () {
+        clearInterval(timer);
+        timeLeft = workDuration;
+        cycleCount = 0;
+        isWorking = true;
+        updateTimerDisplay();
+        updateStatusDisplay();
+        updateCycleCountDisplay();
+        startButton.disabled = false;
+        stopButton.disabled = true;
+        resetButton.disabled = true;
+        });
+        
+        updateTimerDisplay();
+        updateStatusDisplay();
+        updateCycleCountDisplay();
 
 // p5.jsのコード
 

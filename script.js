@@ -17,6 +17,37 @@ let isWorking = true;
 let isRunning = false;
 let timer;
 
+//通知を表示
+function showNotification(optionsBody) {
+    if ('Notification' in window && Notification.permission === 'granted') {
+        const title = 'ポモドーロタイマー';
+        const options = {
+            body: optionsBody,
+            icon: 'path/to/icon.png', // 任意のアイコン画像のパス
+        };
+        new Notification(title, options);
+    } else {
+        console.log('通知が許可されていないか、対応していないブラウザです。');
+    }
+}
+
+//通知の権限をリクエスト
+function requestNotificationPermission() {
+    if ('Notification' in window) {
+        Notification.requestPermission().then((permission) => {
+            if (permission === 'granted') {
+                // 通知の権限が許可された場合
+                console.log('通知の権限が許可されました。');
+                showNotification('残り時間が0になると通知されます');
+            } else {
+                console.log('通知の権限が許可されませんでした。');
+            }
+        });
+    } else {
+        console.log('このブラウザは通知に対応していません。');
+    }
+}
+
 // 時間の表示を更新
 function updateTimerDisplay() {
     let minutes = Math.floor(timeLeft / 60);
@@ -36,10 +67,11 @@ function updateCycleCountDisplay() {
 
 // ポモドーロタイマーのメイン関数
 function pomodoroTimer() {
-    // 時間が0になったら
     if (timeLeft === 0) {
-        // 作業中なら休憩に、休憩中なら作業に切り替える
+        // 時間が0になったら
+        showNotification('残り時間が0になりました');
         if (isWorking) {
+            // 作業中なら休憩に、休憩中なら作業に切り替える
             cycleCount++;
             if (cycleCount === cycles) {
                 clearInterval(timer);
@@ -93,12 +125,13 @@ resetButton.addEventListener("click", function () {
     tomatoes = [];
 });
 
+//画面初期化
 updateTimerDisplay();
 updateStatusDisplay();
 updateCycleCountDisplay();
+requestNotificationPermission()
 
-// 以下をscript.jsの最後に追加
-
+//canvas初期化
 let tomatoes = [];
 let canvas;
 
@@ -107,6 +140,7 @@ function setup() {
     canvas.parent("sketch-holder");
 }
 
+//🍅を召喚する
 function draw() {
     background(255);
 
@@ -126,6 +160,7 @@ function draw() {
     }
 }
 
+//🍅を定義するクラス
 class Tomato {
     constructor(size) {
         this.position = createVector(random(width), -size);
